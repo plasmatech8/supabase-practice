@@ -6,6 +6,7 @@ Code: [Github repository](https://github.com/iamshaunjp/Supabase-Tutorial-for-Be
 Contents:
 - [Supabase Crash Course](#supabase-crash-course)
   - [01. Creating a project](#01-creating-a-project)
+  - [02. Database - Fetching data](#02-database---fetching-data)
 
 ## 01. Creating a project
 
@@ -39,4 +40,49 @@ const supabaseKey = process.env.REACT_APP_SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default supabase;
+```
+
+## 02. Database - Fetching data
+
+Let's create a new table: `smoothies`
+
+![](images/2022-09-07-22-54-40.png)
+
+Let's create a new row.
+
+![](images/2022-09-07-22-56-16.png)
+
+Now lets fetch data using the Supabase JS client:
+```js
+import { useEffect, useState } from "react";
+import supabase from "../config/supabaseClient";
+import SmoothieCard from "../components/SmoothieCard";
+
+const Home = () => {
+    const [fetchError, setFetchError] = useState(null);
+    const [smoothies, setSmoothies] = useState(null);
+
+    useEffect(() => {
+        const fetchSmoothies = async () => {
+        const { data, error } = await supabase.from("smoothies").select();
+        if (error) {
+            setFetchError("Could not fetch the smoothies...");
+            setSmoothies(null);
+            console.log(error);
+        }
+        if (data) {
+            setSmoothies(data);
+            setFetchError(null);
+        }
+        };
+        fetchSmoothies();
+    }, []);
+    // ...
+    <div className="smoothie-grid">
+        {smoothies.map((smoothie) => (
+            <SmoothieCard key={smoothie.id} smoothie={smoothie} />
+        ))}
+    </div>
+    // ...
+}
 ```
