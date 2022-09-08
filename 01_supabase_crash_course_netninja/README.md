@@ -10,6 +10,7 @@ Contents:
   - [03. Adding New Records](#03-adding-new-records)
   - [04. Fetching and Updating Single Records](#04-fetching-and-updating-single-records)
   - [05. Deleting Records](#05-deleting-records)
+  - [06. Updating local state](#06-updating-local-state)
 
 ## 01. Creating a project
 
@@ -134,3 +135,27 @@ const { data, error } = await supabase
     .delete()
     .eq("id", smoothie.id);
 ```
+
+## 06. Updating local state
+
+When we delete a record, the UI does not update. We need it to update.
+
+We will use a function passed in as a prop into the child component.
+```js
+// Home.js
+const handleDelete = (id) => {
+    setSmoothies((prevSmoothies) => {
+        return prevSmoothies.filter((sm) => sm.id !== id);
+    });
+};
+// ...
+<SmoothieCard
+    // ...
+    onDelete={handleDelete}
+/>
+
+// SmoothieCard.js
+onDelete(smoothie.id);
+```
+
+It is probably more convenient to use subscriptions.
