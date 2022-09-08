@@ -7,6 +7,7 @@ Contents:
 - [Supabase Crash Course](#supabase-crash-course)
   - [01. Creating a project](#01-creating-a-project)
   - [02. Database - Fetching data](#02-database---fetching-data)
+  - [03. Adding New Records](#03-adding-new-records)
 
 ## 01. Creating a project
 
@@ -85,4 +86,15 @@ const Home = () => {
     </div>
     // ...
 }
+```
+
+## 03. Adding New Records
+
+We will create the `Create.js` page containing a form to create a smoothie recipe.
+
+Data can be added to the database using:
+```js
+const { data, error } = await supabase
+    .from("smoothies")
+    .insert([{ title, method, rating }]);
 ```
