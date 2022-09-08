@@ -11,6 +11,7 @@ Contents:
   - [04. Fetching and Updating Single Records](#04-fetching-and-updating-single-records)
   - [05. Deleting Records](#05-deleting-records)
   - [06. Updating local state](#06-updating-local-state)
+  - [07. Ordering data](#07-ordering-data)
 
 ## 01. Creating a project
 
@@ -159,3 +160,15 @@ onDelete(smoothie.id);
 ```
 
 It is probably more convenient to use subscriptions.
+
+## 07. Ordering data
+
+Add ordering by using `order`
+```js
+const [orderBy, setOrderBy] = useState("created_at");
+// ...
+const { data, error } = await supabase
+    .from("smoothies")
+    .select()
+    .order(orderBy, { ascending: false });
+```
