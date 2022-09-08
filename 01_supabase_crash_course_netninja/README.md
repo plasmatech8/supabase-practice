@@ -9,6 +9,7 @@ Contents:
   - [02. Database - Fetching data](#02-database---fetching-data)
   - [03. Adding New Records](#03-adding-new-records)
   - [04. Fetching and Updating Single Records](#04-fetching-and-updating-single-records)
+  - [05. Deleting Records](#05-deleting-records)
 
 ## 01. Creating a project
 
@@ -124,3 +125,12 @@ const { data, error } = await supabase
 
 Note that when you do create or updates, in supabase-js v2,
 you need to include the select clause to return the data.
+
+## 05. Deleting Records
+
+```js
+const { data, error } = await supabase
+    .from("smoothies")
+    .delete()
+    .eq("id", smoothie.id);
+```
