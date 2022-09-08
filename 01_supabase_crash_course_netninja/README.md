@@ -8,6 +8,7 @@ Contents:
   - [01. Creating a project](#01-creating-a-project)
   - [02. Database - Fetching data](#02-database---fetching-data)
   - [03. Adding New Records](#03-adding-new-records)
+  - [04. Fetching and Updating Single Records](#04-fetching-and-updating-single-records)
 
 ## 01. Creating a project
 
@@ -98,3 +99,28 @@ const { data, error } = await supabase
     .from("smoothies")
     .insert([{ title, method, rating }]);
 ```
+
+## 04. Fetching and Updating Single Records
+
+We want the user to view single smoothie with the `/<smoothie-id>` path.
+This page will enable the user to update the existing smoothie.
+
+Fetch data:
+```js
+const { data, error } = await supabase
+    .from("smoothies")
+    .select()
+    .eq("id", id)
+    .single();
+```
+
+Update data:
+```js
+const { data, error } = await supabase
+    .from("smoothies")
+    .update({ title, method, rating })
+    .eq("id", id);
+```
+
+Note that when you do create or updates, in supabase-js v2,
+you need to include the select clause to return the data.
