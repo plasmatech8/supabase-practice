@@ -19,3 +19,7 @@ Migrations:
 
 Other notes:
 * TypeSense or Agolia is going to have a more effective search engine
+
+Functions:
+* It is possible to use postgres as a cron server for time-based triggers (see [this](https://github.com/supabase/supabase/discussions/7646#discussioncomment-3123091)). But is there an official method?
+* Are there database triggers for edge functions ???
