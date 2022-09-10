@@ -295,11 +295,14 @@ const { data: record, error } = supabase.from("smoothies").doc("asdasd").get()
 const { data: subscription, error } = supabase.from("smoothies").doc("asdasd").subscribe()
 ```
 
-TODO: check if callbacks are compatible with svelte stores.
+TODO: check if subsciptions are compatible with svelte auto-subscriptions.
 ```js
 supabase.from("smoothies").on("*", callback).subscribe(callback)
+
+const smoothies = supabase.from("smoothies").on("*")
+{$smoothies}
 ```
 
-* The `.on()` method returns an object containing a subscribe method. Looks good I think.
-* The `subscribe()` method accepts some sort of callback. Looks good assuming it triggers based on the subscription.
-* The `subscribe()` method returns an object containing an unsubscribe method. Not so good. The unsubscribe should be returned, not an object containing the unsubscribe.
+* The `.on()` method returns an object containing a subscribe method. Looks good.
+* The `subscribe()` method accepts some sort of callback. Looks good (assuming it triggers based on the subscription).
+* The `subscribe()` method returns an object containing an unsubscribe method. Looks good (after testing, it looks like Svelte supports both an unsubscribe method and object containing an unsubscribe method!).
