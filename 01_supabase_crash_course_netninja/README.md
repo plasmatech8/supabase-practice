@@ -12,6 +12,12 @@ Contents:
   - [05. Deleting Records](#05-deleting-records)
   - [06. Updating local state](#06-updating-local-state)
   - [07. Ordering data](#07-ordering-data)
+  - [08. RLS & Policies](#08-rls--policies)
+  - [Notes about client side ergonomics (supabase-js)](#notes-about-client-side-ergonomics-supabase-js)
+    - [DELETE](#delete)
+    - [UPDATE](#update)
+    - [CREATE](#create)
+    - [Other approaches](#other-approaches)
 
 ## 01. Creating a project
 
@@ -172,3 +178,128 @@ const { data, error } = await supabase
     .select()
     .order(orderBy, { ascending: false });
 ```
+
+## 08. RLS & Policies
+
+Turn on Row Level Security (RLS) in your table in the Supabase dashboard.
+
+Navigate to the Athentication tab.
+Go to Policies.
+
+You can see the table that you have activated RLS for.
+
+Now:
+* The returned list of smoothies is an empty array because we were not granted access to any of the records.
+* The create new smoothie page form does not work and throws `{ code: "42501", details: null, hint: null, message: "new row violates row-level security policy for table \"smoothies\"" }`
+* etc...
+
+We can create a policy to allow users to view the list of smoothies.
+Select a template to get started with.
+
+![](images/2022-09-10-21-41-29.png)
+
+Then you can set the allowed operation, user roles (authenticated/anon/supabase_functions_admin/etc), and SQL expression.
+
+![](images/2022-09-10-21-43-13.png)
+
+We will enable access to all things for all users.
+
+Note:
+* `USING` - determines which rows are visible. silently suppresses rows, meaning that no error is thrown when doing a select query. also invalidates other query types because the user cannot see the record
+* `CHECK` - used checks if an insert or update is valid and throws an error otherwise
+
+
+## Notes about client side ergonomics (supabase-js)
+
+### DELETE
+
+DELETE with no USING expression allowing delete. Throws an empty error object:
+```json
+[]
+```
+
+And if we add `.single()`. Throws error object:
+```json
+{
+  "code": "PGRST116",
+  "details": "Results contain 0 rows, application/vnd.pgrst.object+json requires 1 row",
+  "hint": null,
+  "message": "JSON object requested, multiple (or no) rows returned"
+}
+```
+
+DELETE does not utilise CHECK. (idk, why that makes sense)
+
+It is true that we might want to silently supress a DELETE query for rows a user cannot view.
+
+But what about DELETE on rows that a user can view? Cannot throw an error for this.
+
+It is annoying that we cannot recieve an error on the client.
+
+### UPDATE
+
+UPDATE with no USING expression allowing delete. Does not throw any error. Returns data object:
+```json
+[]
+```
+
+And if we add `.single()`. Throws error object:
+```json
+{
+  "code": "PGRST116",
+  "details": "Results contain 0 rows, application/vnd.pgrst.object+json requires 1 row",
+  "hint": null,
+  "message": "JSON object requested, multiple (or no) rows returned"
+}
+```
+
+UPDATE with no CHECK expression throws an error:
+```json
+{
+  "code": "42501",
+  "details": null,
+  "hint": null,
+  "message": "new row violates row-level security policy for table \"smoothies\""
+}
+```
+
+It is a little bit weird that it throws an RLS error when you are trying to update
+rows that you cannot view.
+
+But I guess that makes sense if the CHECK expression becomes valid
+on different rows.
+
+### CREATE
+
+CREATE with no CHECK expression throws an error as expected:
+```json
+{
+  "code": "42501",
+  "details": null,
+  "hint": null,
+  "message": "new row violates row-level security policy for table \"smoothies\""
+}
+```
+
+### Other approaches
+
+At first, it feels like it would be nice to have an interface that more closely resembles
+Firebase or NoSQL as an alternative option.
+
+But it would actually wind up looking reletively similar and not really provide much benefit... I don't think.
+
+e.g.
+```js
+const { data: list, error } = supabase.from("smoothies").eq("type", "2")
+const { data: record, error } = supabase.from("smoothies").doc("asdasd").get()
+const { data: subscription, error } = supabase.from("smoothies").doc("asdasd").subscribe()
+```
+
+TODO: check if callbacks are compatible with svelte stores.
+```js
+supabase.from("smoothies").on("*", callback).subscribe(callback)
+```
+
+* The `.on()` method returns an object containing a subscribe method. Looks good I think.
+* The `subscribe()` method accepts some sort of callback. Looks good assuming it triggers based on the subscription.
+* The `subscribe()` method returns an object containing an unsubscribe method. Not so good. The unsubscribe should be returned, not an object containing the unsubscribe.
