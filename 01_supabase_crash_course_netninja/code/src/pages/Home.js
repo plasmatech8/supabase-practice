@@ -40,7 +40,7 @@ const Home = () => {
       {smoothies && (
         <div className="smoothies">
           {/* Order-by buttons */}
-          <div class="order-by">
+          <div className="order-by">
             <p>Order By:</p>
             <button onClick={() => setOrderBy("created_at")}>
               Time Created
