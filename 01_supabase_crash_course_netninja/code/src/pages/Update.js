@@ -22,11 +22,12 @@ const Update = () => {
     const { data, error } = await supabase
       .from("smoothies")
       .update({ title, method, rating })
-      .eq("id", id);
+      .eq("id", id)
+      .single();
     // Response
     if (error) {
       console.log(error);
-      setFormError("Please fill in all the fields correctly.");
+      setFormError(error.message);
     }
     if (data) {
       console.log(data);
