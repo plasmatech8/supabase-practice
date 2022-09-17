@@ -1,5 +1,6 @@
 <script>
 	import AppBar from '$lib/AppBar.svelte';
+	import '$lib/supabase';
 	import '@fortawesome/fontawesome-free/js/all';
 	import '../app.postcss';
 </script>
