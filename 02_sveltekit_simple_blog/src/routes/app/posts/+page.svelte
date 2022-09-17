@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PostPreviewCard from '$lib/PostPreviewCard.svelte';
+	import { pick } from 'lodash';
 
 	let postList: PostInfo[] = [...Array(10).keys()].map((i) => ({
 		title: 'Post ' + String.fromCharCode(65 + i),
@@ -34,7 +35,7 @@
 
 	<div class="flex gap-6 flex-wrap justify-center">
 		{#each filteredPostlist as post}
-			<PostPreviewCard {...post} />
+			<PostPreviewCard {...pick(post, ['title', 'subtitle', 'imgSrc', 'postId'])} />
 		{/each}
 	</div>
 </div>

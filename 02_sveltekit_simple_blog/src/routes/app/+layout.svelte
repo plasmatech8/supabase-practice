@@ -1,22 +1,20 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { signedIn, userDetails } from '$lib/stores';
+	import supabase from '$lib/supabase';
 	import { onMount } from 'svelte';
 	import { Wave } from 'svelte-loading-spinners';
+	let loading = true;
+
 	onMount(async () => {
-		if (!$signedIn) return goto('/signin');
-		// Load user info
+		const user = supabase.auth.user();
+		if (!user) return goto('/signin');
 		await new Promise((r) => setTimeout(r, 1000));
-		$userDetails = {
-			profilePicture: 'https://placeimg.com/80/80/people',
-			email: 'john.doe@example.com',
-			firstname: 'John',
-			lastname: 'Doe'
-		};
+		// TODO: change loading to a reactive variable that waits for user profile to load
+		loading = false;
 	});
 </script>
 
-{#if $userDetails}
+{#if !loading}
 	<slot />
 {:else}
 	<div class="hero h-[80vh]">

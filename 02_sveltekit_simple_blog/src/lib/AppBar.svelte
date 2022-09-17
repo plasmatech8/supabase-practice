@@ -1,11 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import Avatar from './Avatar.svelte';
-	import { signedIn, userDetails } from './stores';
+	import { user, userDetails } from './stores';
+	import supabase from './supabase';
 
-	function signOut() {
-		$signedIn = false;
-		$userDetails = undefined;
+	async function signOut() {
+		const { error } = await supabase.auth.signOut();
+		if (error) {
+			alert(error.message);
+		}
+		$userDetails = null;
 		goto('/');
 	}
 </script>
@@ -16,7 +20,7 @@
 			<i class="fa-solid fa-sailboat text-2xl" />
 			Blog
 		</a>
-		{#if $signedIn}
+		{#if $user}
 			<a class="btn btn-ghost normal-case text-md gap-3" href="/app/posts">
 				<i class="fa-solid fa-book" />
 				Posts
@@ -28,12 +32,12 @@
 		{/if}
 	</div>
 	<div class="flex-none gap-2 navbar-end">
-		{#if $signedIn && $userDetails}
+		{#if $user}
 			<div class="dropdown dropdown-end">
 				<label tabindex="0" class="btn btn-ghost btn-circle avatar" for="">
 					<Avatar
-						firstname={$userDetails.firstname}
-						imageSrc={$userDetails.profilePicture}
+						firstname={$userDetails?.firstname}
+						imageSrc={$userDetails?.profilePicture}
 						size={10}
 					/>
 				</label>
