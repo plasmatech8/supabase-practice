@@ -13,6 +13,8 @@
   - [Remote Development](#remote-development)
     - [Linking a Remote Project](#linking-a-remote-project)
     - [Syncing Remote and Local Migrations](#syncing-remote-and-local-migrations)
+  - [Edge Functions](#edge-functions)
+    - [Managing functions](#managing-functions)
   - [SvelteKit Application](#sveltekit-application)
     - [Type Generation](#type-generation)
   - [CICD workflow](#cicd-workflow)
@@ -130,6 +132,18 @@ This might be a little annoying.
 > Maybe I should set up CICD so that when a new branch is created, a new dev Supabase
 > Studio instance is created. Might come with complications though. Question: is the UI
 > the same as Supabase website or is it simplified like the Supabase local studio?
+
+## Edge Functions
+
+### Managing functions
+
+Install the Deno VS Code extension and run the `Deno: Initialise Workspace Configuration` command.
+
+```bash
+supabase functions new hello-world # create code for a function
+supabase functions serve hello-world # serve a single function
+supabase functions deploy hello-world # deploy a single function
+```
 
 ## SvelteKit Application
 
