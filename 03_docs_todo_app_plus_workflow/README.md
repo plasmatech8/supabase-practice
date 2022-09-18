@@ -9,7 +9,7 @@
 - [Supabase Docs: todo app plus workflow](#supabase-docs-todo-app-plus-workflow)
   - [Local Development](#local-development)
     - [Starting a Local Project](#starting-a-local-project)
-  - [Managing Local Database Migrations](#managing-local-database-migrations)
+    - [Managing Local Database Migrations](#managing-local-database-migrations)
   - [Remote Development](#remote-development)
     - [Linking a Remote Project](#linking-a-remote-project)
     - [Syncing Remote and Local Migrations](#syncing-remote-and-local-migrations)
@@ -52,7 +52,7 @@ The default project is connected.
 > available in the studio UI. (e.g. auth settings, storage, etc)
 > TODO: write a section about the configuration of other settings not related to the database
 
-## Managing Local Database Migrations
+### Managing Local Database Migrations
 
 You can create database changes in the studio UI using the SQL editor,
 or manually change it using visual the table editor.
