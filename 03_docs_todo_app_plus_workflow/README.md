@@ -21,6 +21,12 @@
     - [Type Generation](#type-generation)
   - [CICD workflow](#cicd-workflow)
 
+TODO:
+- [x] Local/remote development with migrations
+- [ ] Todo app demo with storage + auth + triggers + type generation
+- [ ] CICD (just notes about it)
+- [ ] write a section about the configuration of other settings not related to the database
+
 ## Local Development
 
 ### Starting a Local Project
@@ -54,7 +60,6 @@ The default project is connected.
 
 > It is worth noting that most settings are located under `config.toml` and are not
 > available in the studio UI. (e.g. auth settings, storage, etc)
-> TODO: write a section about the configuration of other settings not related to the database
 
 ### Managing Local Database Migrations
 
