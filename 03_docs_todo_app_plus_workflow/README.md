@@ -83,6 +83,11 @@ supabase db reset
 ```
 (this will delete all your data)
 
+You can also write your migration SQL manually. To create an empty migration file, run:
+```bash
+supabase migration new <migration-name>
+```
+
 ## Remote Development
 
 ### Linking a Remote Project
@@ -110,6 +115,11 @@ supabase db remote commit
 
 This will create a `supabase/migrations/<timestamp>_remote_commit.sql` file.
 
+To list migrations existing on the remote:
+```bash
+supabase migration list
+```
+
 > It is a bit annoying that you need to enter your database password every single time you
 > run these commands. Maybe I should make a wrapper command.
 
@@ -118,7 +128,8 @@ you will need to create a database branch OR restart the Supabase studio.
 This might be a little annoying.
 
 > Maybe I should set up CICD so that when a new branch is created, a new dev Supabase
-> Studio instance is created.
+> Studio instance is created. Might come with complications though. Question: is the UI
+> the same as Supabase website or is it simplified like the Supabase local studio?
 
 ## SvelteKit Application
 
