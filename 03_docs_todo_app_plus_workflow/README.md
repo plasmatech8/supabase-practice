@@ -14,6 +14,7 @@
     - [Linking a Remote Project](#linking-a-remote-project)
     - [Syncing Remote and Local Migrations](#syncing-remote-and-local-migrations)
   - [SvelteKit Application](#sveltekit-application)
+    - [Type Generation](#type-generation)
   - [CICD workflow](#cicd-workflow)
 
 ## Local Development
@@ -120,5 +121,11 @@ This might be a little annoying.
 > Studio instance is created.
 
 ## SvelteKit Application
+
+### Type Generation
+
+```bash
+supabase gen types typescript --local > lib/database.types.ts
+```
 
 ## CICD workflow
