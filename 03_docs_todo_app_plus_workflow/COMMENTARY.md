@@ -9,20 +9,20 @@ About the Supabase DX.
 
 ## Command Cheatsheet
 
-| Command                                                         | Description                                                                    |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `supabase login`                                                | Login to Supabase (app.supabase.com)                                           |
-| `supabase init`                                                 | Create boilerplate for local project (`supabase/config.toml`)                  |
-| `supabase start`                                                | Start local Supabase containers                                                |
-| `supabase stop`                                                 | Stop local Supabase containers                                                 |
-| `supabase db diff -f <migration-name> --use-migra`              | Pull database changes from local containers to migrations folder (SQL file)    |
-| `supabase migration new <migration-name>`                       | Create an empty migration file (SQL file)                                      |
-| `supabase link --project-ref <project-id>`                      | Create files to link CLI to this remote project                                |
-| `supabase db reset`                                             | Clear all data and reset the local database schema to current migrations       |
-| `supabase db push`                                              | Push migrations folder to the remote Supabase (app.supabase.com)               |
-| `supabase db remote commit`                                     | Pull database changes from remote Supabase to the migrations folder (SQL file) |
-| `supabase migration list`                                       | List migrations that exist in the remote Supabase                              |
-| `supabase gen types typescript --local > lib/database.types.ts` | Generate types for                                                             |
+| Command                                                         | Description                                                                        |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `supabase login`                                                | Login to Supabase (app.supabase.com)                                               |
+| `supabase init`                                                 | Create boilerplate for **LOCAL** project (`supabase/config.toml`)                  |
+| `supabase start`                                                | Start local Supabase containers                                                    |
+| `supabase stop`                                                 | Stop local Supabase containers                                                     |
+| `supabase db diff -f <migration-name> --use-migra`              | Pull database changes from **LOCAL** containers to migrations folder (SQL file)    |
+| `supabase migration new <migration-name>`                       | Create an empty migration file (SQL file)                                          |
+| `supabase link --project-ref <project-id>`                      | Create files to link CLI to this **REMOTE** project                                |
+| `supabase db reset`                                             | Clear all data and reset the local database schema to current migrations           |
+| `supabase db push`                                              | Push migrations folder to the **REMOTE** Supabase (app.supabase.com)               |
+| `supabase db remote commit`                                     | Pull database changes from **REMOTE** Supabase to the migrations folder (SQL file) |
+| `supabase migration list`                                       | List migrations that exist in the **REMOTE** Supabase                              |
+| `supabase gen types typescript --local > lib/database.types.ts` | Generate types for                                                                 |
 
 ## Workflow notes & suggestions
 
