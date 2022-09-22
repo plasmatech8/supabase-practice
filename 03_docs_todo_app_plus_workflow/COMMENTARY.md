@@ -7,6 +7,7 @@ About the Supabase DX.
   - [Workflow notes & suggestions](#workflow-notes--suggestions)
   - [CLI notes & suggestions](#cli-notes--suggestions)
   - [Supabase-js notes](#supabase-js-notes)
+  - [GraphQL support](#graphql-support)
 
 ## Command Cheatsheet
 
@@ -185,3 +186,12 @@ supabase.graphql(`getEmployee(id: 1) { name company{ name } profile{ nickname } 
 idk. These ideas don't look very good either.
 
 I just hope they get really nice intellisense/typescript support in the future.
+
+## GraphQL support
+
+Supabase supports graphql. We can use the GraphiQL interactive explorer to try it out.
+
+I do not know if there is a good, lightweight client with type support.
+
+There is an [official quickstart for graphiql](https://supabase.github.io/pg_graphql/quickstart/),
+but I have no idea how to set it up with my local supabase.
