@@ -6,6 +6,7 @@ About the Supabase DX.
   - [Command Cheatsheet](#command-cheatsheet)
   - [Workflow notes & suggestions](#workflow-notes--suggestions)
   - [CLI notes & suggestions](#cli-notes--suggestions)
+  - [Supabase-js notes](#supabase-js-notes)
 
 ## Command Cheatsheet
 
@@ -149,3 +150,38 @@ supabase functions push --remote
 supabase config push --remote
 supabase config pull --remote
 ```
+
+## Supabase-js notes
+
+It's alright. See [+page.svelte](my-project/website/supabase-sveltekit/src/routes/+page.svelte)
+
+It is nice that it puts references to foreign tables in
+objects (if the local row has the foreign key, 1-1) or as
+arrays (if the foreign row has the foreign key, 1-many).
+
+User data management/security (Foreign key references + RLS):
+* Users table
+  * Contains data that should not be changed readily by the user
+  * Contains references (1-1) to a record in other tables (like profiles)
+* Profiles table
+  * Contains user personal details that can be changed readily
+
+Supabase-js v2 (next) supports autocomplete via the type generation.
+
+Missing:
+* `.select(...)` statement strings
+  * Cannot autocomplete names for specific columns
+  * Cannot autocomplete names for referenced tables
+* Ouput data:
+  * Cannot autocomplete for columns in referenced table
+
+I kind-of wish the client was designed differently... perhaps more like nosql database.
+
+```ts
+supabase.table("employees").select("id", "name").resolve("company", ["id", "name"]).eq("id", 1).single()
+supabase.get("employees", ["id", "name"]).resolve("company", ["cid:id", "name"]).eq("id", 1).single()
+supabase.graphql(`getEmployee(id: 1) { name company{ name } profile{ nickname } }`)
+```
+idk. These ideas don't look very good either.
+
+I just hope they get really nice intellisense/typescript support in the future.

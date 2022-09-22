@@ -1,10 +1,17 @@
 <script lang="ts">
     import { createClient } from '@supabase/supabase-js'
+    import type { Database } from "./database.types"
 
     const supabaseUrl = "http://localhost:54321";
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.625_WdcF3KHqz5amU0x2X5WWHP-OEs_4qj0ssLNHzTs";
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient<Database>(supabaseUrl, supabaseKey);
+
+    async function hello(){
+        // Try out intellisense/autocomplete here
+        const { data, error } = await supabase.from("employees").select("*, comp:company(*)").eq("id", 1).single();
+        console.log(data?.comp, error);
+    }
 
     const queryList = [
         {
