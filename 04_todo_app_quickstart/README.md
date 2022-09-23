@@ -86,4 +86,189 @@ VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
 VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_KEY"
 ```
 
-Create a Supabase client object.
+Create a Supabase client object under `lib/supabaseClient.ts`
+
+```ts
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+```
+
+Import the `src/lib/global.css` file.
+
+Create a Login Component. (I edited the code slightly to make it more compact)
+
+```svelte
+<script>
+  import { supabase } from '$lib/supabaseClient'
+
+  let loading = false
+  let email
+
+  const handleLogin = async () => {
+    loading = true;
+    const { error } = await supabase.auth.signIn({ email });
+    if (error) {
+        alert(error.message);
+    } else {
+        alert('Check your email for the login link!');
+    }
+    loading = false;
+  }
+</script>
+
+<form class="row flex-center flex" on:submit|preventDefault="{handleLogin}">
+  <div class="col-6 form-widget">
+    <h1 class="header">Supabase + Svelte</h1>
+    <p class="description">Sign in via magic link with your email below</p>
+    <div>
+      <input
+        class="inputField"
+        type="email"
+        placeholder="Your email"
+        bind:value="{email}"
+      />
+    </div>
+    <div>
+      <input type="submit" class='button block' value={loading ? "Loading" :
+      "Send magic link"} disabled={loading} />
+    </div>
+  </div>
+</form>
+```
+
+User store under `lib/sessionStore.ts`. (NOTE I might update the code later to the way that I like it)
+
+```ts
+import type { User } from '@supabase/supabase-js';
+import { writable } from 'svelte/store';
+
+export const user = writable<User | null>();
+```
+
+Create account page under `lib/profile.svelte`. (made some edits)
+
+```svelte
+<script lang="ts">
+  import { supabase } from '$lib/supabaseClient'
+  import { user } from '$lib/sessionStore'
+
+  let loading = true;
+  let username: string;
+  let website: string;
+  let avatar_url: string;
+
+  function getProfile(node: Node) {
+    loading = true;
+    const user = supabase.auth.user();
+
+    supabase
+      .from("profiles")
+      .select(`username, website, avatar_url`)
+      .eq("id", user?.id)
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          alert(error.message);
+        } else {
+          username = data.username;
+          website = data.website;
+          avatar_url = data.avatar_url;
+        }
+        loading = false;
+      });
+  }
+
+  async function updateProfile() {
+    try {
+      loading = true
+      const user = supabase.auth.user()
+      if (!user) throw Error("No user signed in.");
+      const updates = {
+        id: user.id,
+        username,
+        website,
+        avatar_url,
+        updated_at: new Date(),
+      }
+      let { error } = await supabase.from('profiles').upsert(updates, {
+        returning: 'minimal', // Don't return the value after inserting
+      })
+      if (error) throw error;
+    } catch(error: any) {
+      alert(error.message)
+    }
+    loading = false;
+  }
+
+  async function signOut() {
+    try {
+      loading = true
+      let { error } = await supabase.auth.signOut()
+      if (error) throw error
+    } catch (error: any) {
+      alert(error.message)
+    } finally {
+      loading = false
+    }
+
+  }
+</script>
+
+<form
+  use:getProfile
+  class="form-widget"
+  on:submit|preventDefault="{updateProfile}"
+>
+  <div>
+    <label for="email">Email</label>
+    <input id="email" type="text" value="{$user?.email || '-'}" disabled />
+  </div>
+  <div>
+    <label for="username">Name</label>
+    <input id="username" type="text" bind:value="{username}" />
+  </div>
+  <div>
+    <label for="website">Website</label>
+    <input id="website" type="website" bind:value="{website}" />
+  </div>
+
+  <div>
+    <input type="submit" class="button block primary" value={loading ? 'Loading...' : 'Update'} disabled={loading}/>
+  </div>
+
+  <div>
+    <button class="button block" on:click="{signOut}" disabled="{loading}">
+      Sign Out
+    </button>
+  </div>
+</form>
+```
+
+Create page.
+
+```svelte
+<script>
+  import { user } from '$lib/sessionStore'
+  import { supabase } from '$lib/supabaseClient'
+  import Auth from '$lib/Auth.svelte'
+  import Profile from '$lib/Profile.svelte'
+
+  user.set(supabase.auth.user())
+
+  supabase.auth.onAuthStateChange((_, session) => {
+      session?.user && user.set(session.user)
+  })
+</script>
+
+<div class="container" style="padding: 50px 0 100px 0;">
+  {#if $user}
+  <Profile />
+  {:else}
+  <Auth />
+  {/if}
+</div>
+```
