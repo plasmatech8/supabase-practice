@@ -16,6 +16,11 @@ settings manually.
 > * Storage?
 > It would be better if there was no difference between dev/prod servers
 
+- [Supabase Quickstart - SvelteKit - Todo App](#supabase-quickstart---sveltekit---todo-app)
+  - [01. Project Set-Up](#01-project-set-up)
+  - [02. Building the App](#02-building-the-app)
+  - [03. Bonus: Profile photos](#03-bonus-profile-photos)
+  - [04. Further Updates](#04-further-updates)
 
 ## 01. Project Set-Up
 
@@ -394,3 +399,46 @@ Update the profile page.
   <Avatar bind:path="{avatar_url}" on:upload="{updateProfile}" />
 <!-- ... -->
 ```
+
+## 04. Further Updates
+
+User store: Using a readable store is much better than putting `onAuthStateChange` inside your
+`+page` or `+layout`.
+
+```ts
+export const user = readable<User | null>(null, (set) => {
+	set(supabase.auth.user());
+	supabase.auth.onAuthStateChange((_, session) => set(session?.user || null));
+});
+```
+
+User profile store: It would also be good to make a store for user details, since it will need
+to be used throughout a complex app. It needs to be either writable, or subscribe to changes
+when the user changes their profile.
+
+```ts
+export const profile = writable<Profile | null>(null, (set) => {
+  async function refreshProfile(user: User | null) {
+    if (user === null) set(null);
+    else {
+      const {data, error} = await supabase
+        .from("profiles")
+        .select(`username, website, avatar_url`)
+        .eq("id", user?.id)
+        .single();
+      set(data);
+    }
+  }
+  refreshProfile(supabase.auth.user());
+	supabase.auth.onAuthStateChange((_, session) => refreshProfile(session?.user || null));
+});
+// Or
+export const profile = readable<Profile | null>(null, (set) => {
+  const profile = supabase
+    .from('profiles')
+    .on('*', (payload: any) => set(payload.new as Profile))
+    .subscribe();
+}
+```
+
+I am leaning on option 2. omg! Super simple!!! :D

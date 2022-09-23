@@ -306,3 +306,10 @@ const smoothies = supabase.from("smoothies").on("*")
 * The `.on()` method returns an object containing a subscribe method. Looks good.
 * The `subscribe()` method accepts some sort of callback. Looks good (assuming it triggers based on the subscription).
 * The `subscribe()` method returns an object containing an unsubscribe method. Looks good (after testing, it looks like Svelte supports both an unsubscribe method and object containing an unsubscribe method!).
+
+Nope it does NOT WORK.
+
+Need to call `.subscribe()` method to activate the subscription and `$foo` on `foo.on('o')` returns
+a string "SUBSCRIBED".
+
+Need to wrap the subscribe call with another function.
