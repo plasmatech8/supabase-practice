@@ -2,6 +2,10 @@
 
 Following: https://supabase.com/docs/guides/with-sveltekit
 
+
+![](images/2022-09-23-14-19-27.png)
+![](images/2022-09-23-14-19-07.png)
+
 It instructs us to use app.supabase.com, but we should be able to develop locally as well
 if we do `supabase db remote commit`. We also need to setup the `config.toml` with the
 settings manually.
@@ -11,6 +15,7 @@ settings manually.
 > * Is federated auth supported? Magic link auth?
 > * Storage?
 > It would be better if there was no difference between dev/prod servers
+
 
 ## 01. Project Set-Up
 
@@ -280,3 +285,112 @@ Now we have a basic app where the user can:
 
 > What do we do when there is private user details we need to add?
 > We will probably create another table called `user_private_details` with different RLS policy.
+
+## 03. Bonus: Profile photos
+
+The RLS policies were already set up!
+
+Create `lib/Avatar.svelte`.
+
+```svelte
+<script lang="ts">
+  import { createEventDispatcher } from 'svelte'
+  import { supabase } from '$lib/supabaseClient'
+
+  export let path: string
+  export let size: string = '10em'
+
+  let uploading = false;
+  let src: string;
+  let files: FileList;
+
+  const dispatch = createEventDispatcher()
+
+  function downloadImage(node: Node) {
+    supabase.storage
+      .from('avatars')
+      .download(path)
+      .then(({ data, error }) => {
+        if (error) throw error
+        if (data) src = URL.createObjectURL(data);
+      })
+      .catch((error) =>
+        console.error('Error downloading image: ', error.message)
+      )
+  }
+
+  async function uploadAvatar() {
+    try {
+      uploading = true
+
+      if (!files || files.length === 0) {
+        throw new Error('You must select an image to upload.')
+      }
+
+      const file = files[0]
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random()}.${fileExt}`
+      const filePath = `${fileName}`
+
+      let { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file)
+      if (uploadError) throw uploadError
+
+      path = filePath
+      dispatch('upload')
+    } catch (error: any) {
+      alert(error.message)
+    } finally {
+      uploading = false
+    }
+  }
+</script>
+
+<div>
+  {#if path}
+    <img
+      use:downloadImage
+      {src}
+      alt="Avatar"
+      class="avatar image"
+      style="height: {size}; width: {size};"
+    />
+  {:else}
+    <div class="avatar no-image" style="height: {size}; width: {size};" />
+  {/if}
+
+  <div style="width: {size};">
+    <label class="button primary block" for="single">
+      {uploading ? 'Uploading ...' : 'Upload'}
+    </label>
+    <input
+      style="visibility: hidden; position:absolute;"
+      type="file"
+      id="single"
+      accept="image/*"
+      bind:files
+      on:change="{uploadAvatar}"
+      disabled="{uploading}"
+    />
+  </div>
+</div>
+```
+
+Update the profile page.
+
+```svelte
+<script lang="ts">
+  import Avatar from '$lib/Avatar.svelte'
+  // ...
+</script>
+
+<!-- ... -->
+<form
+  use:getProfile
+  class="form-widget"
+  on:submit|preventDefault="{updateProfile}"
+>
+  <Avatar bind:path="{avatar_url}" on:upload="{updateProfile}" />
+<!-- ... -->
+```

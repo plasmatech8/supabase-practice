@@ -1,6 +1,7 @@
 <script lang="ts">
     import { supabase } from '$lib/supabaseClient'
     import { user } from '$lib/sessionStore'
+    import Avatar from '$lib/Avatar.svelte'
 
     let loading = true;
     let username: string;
@@ -69,6 +70,7 @@
     class="form-widget"
     on:submit|preventDefault="{updateProfile}"
   >
+    <Avatar bind:path="{avatar_url}" on:upload="{updateProfile}" />
     <div>
       <label for="email">Email</label>
       <input id="email" type="text" value="{$user?.email || '-'}" disabled />
