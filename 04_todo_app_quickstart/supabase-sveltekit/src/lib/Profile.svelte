@@ -19,7 +19,7 @@
         .single()
         .then(({ data, error }) => {
           if (error) {
-            alert(error.message);
+            console.error(error.message);
           } else {
             username = data.username;
             website = data.website;
