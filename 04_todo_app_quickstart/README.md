@@ -272,3 +272,11 @@ Create page.
   {/if}
 </div>
 ```
+
+Now we have a basic app where the user can:
+* Log in using magic email link
+* View their profile (name/website)
+* Edit (upsert) their profile
+
+> What do we do when there is private user details we need to add?
+> We will probably create another table called `user_private_details` with different RLS policy.
