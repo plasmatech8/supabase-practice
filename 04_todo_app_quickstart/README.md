@@ -410,6 +410,12 @@ export const user = readable<User | null>(null, (set) => {
 	set(supabase.auth.user());
 	supabase.auth.onAuthStateChange((_, session) => set(session?.user || null));
 });
+// OR
+// export const user = readable<User | null>(null, (set) => {
+// 	set(supabase.auth.user());
+// 	const { data, error } = supabase.auth.onAuthStateChange((_, session) => set(session?.user || null));
+//   return data?.unsubscribe();
+// });
 ```
 
 User profile store: It would also be good to make a store for user details, since it will need
@@ -432,14 +438,24 @@ export const profile = writable<Profile | null>(null, (set) => {
   refreshProfile(supabase.auth.user());
 	supabase.auth.onAuthStateChange((_, session) => refreshProfile(session?.user || null));
 });
-// Or
-export const profile = readable<Profile | null>(null, (set) => {
+// OR
+export const profile = derived<Profile | null>(user, ($user, set) => {
+  if ($u === null) return set(null);
+  const {data, error} = await supabase
+    .from("profiles")
+    .select(`username, website, avatar_url`)
+    .eq("id", $user.id)
+    .single();
+  set(data);
   const subscription = supabase
-    .from('profiles')
+    .from(`profiles:id=eq.${$user.id}`)
     .on('*', (payload: any) => set(payload.new as Profile))
     .subscribe();
-  return () => supabase.removeSubscription(subscription)
+  return () => supabase.removeSubscription(subscription);
 }
+// ^^^ This looks like the correct way to do it
 ```
 
 I am leaning on option 2. omg! Super simple!!! :D
+
+We could remove the subscription if we want to make things more simple.
