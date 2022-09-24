@@ -434,10 +434,11 @@ export const profile = writable<Profile | null>(null, (set) => {
 });
 // Or
 export const profile = readable<Profile | null>(null, (set) => {
-  const profile = supabase
+  const subscription = supabase
     .from('profiles')
     .on('*', (payload: any) => set(payload.new as Profile))
     .subscribe();
+  return () => supabase.removeSubscription(subscription)
 }
 ```
 
