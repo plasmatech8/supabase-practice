@@ -17,4 +17,8 @@
 
 	// For auto-rename html tags
 	"editor.linkedEditing": true
+
+	// Sveltekit QOL settings
+	// "workbench.editor.labelFormat": "short"
+	// "workbench.tree.indent": 16
 }
