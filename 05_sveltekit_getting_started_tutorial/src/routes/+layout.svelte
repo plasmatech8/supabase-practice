@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import '../styles.css';
 
 	export let data;
 
@@ -23,5 +24,12 @@
 </svelte:head>
 
 <div class="container" style="padding: 50px 0 100px 0">
+	<div>
+		{#if session}
+			{session.user.id}
+		{:else}
+			Not logged in.
+		{/if}
+	</div>
 	<slot />
 </div>
