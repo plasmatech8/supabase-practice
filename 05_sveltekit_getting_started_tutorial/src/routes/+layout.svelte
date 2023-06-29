@@ -26,7 +26,7 @@
 <div class="container" style="padding: 50px 0 100px 0">
 	<div>
 		{#if session}
-			{session.user.id}
+			<pre>{JSON.stringify(session.user, null, 4)}</pre>
 		{:else}
 			Not logged in.
 		{/if}

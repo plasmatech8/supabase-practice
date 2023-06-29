@@ -5,6 +5,14 @@
     - [Project Setup](#project-setup)
     - [Build App](#build-app)
     - [Supabase Auth Helpers](#supabase-auth-helpers)
+    - [Setup Login Page](#setup-login-page)
+    - [Proof Key for Code Exchange (PKCE)](#proof-key-for-code-exchange-pkce)
+    - [Account Page](#account-page)
+
+Worth looking at:
+* [Getting Started - Build a User Management App with SvelteKit](https://supabase.com/docs/guides/getting-started/tutorials/with-sveltekit)
+* [Auth - Supabase Auth with SvelteKit](https://supabase.com/docs/guides/auth/auth-helpers/sveltekit#install-sveltekit-auth-helpers-library)
+* [Getting Started - Local Development](https://supabase.com/docs/guides/getting-started/local-development)
 
 ## 01. Getting Started - Build a User Management App with SvelteKit
 
@@ -164,3 +172,231 @@ Update `src/routes/+layout.svelte`:
 	<slot />
 </div>
 ```
+
+### Setup Login Page
+
+Install NPM libraries:
+```bash
+npm install @supabase/auth-ui-svelte @supabase/auth-ui-shared
+```
+
+
+Update `src/routes/+page.svelte`:
+```svelte
+<script lang="ts">
+	import { Auth } from '@supabase/auth-ui-svelte'
+	import { ThemeSupa } from '@supabase/auth-ui-shared'
+
+	export let data
+</script>
+
+<svelte:head>
+	<title>User Management</title>
+</svelte:head>
+
+<div class="row flex-center flex">
+	<div class="col-6 form-widget">
+		<Auth
+			supabaseClient={data.supabase}
+			view="magic_link"
+			redirectTo={`${data.url}/auth/callback`}
+			showLinks={false}
+			appearance={{ theme: ThemeSupa, style: { input: 'color: #fff' } }}
+            additionalData={{}}
+		/>
+	</div>
+</div>
+```
+
+Create `src/routes/+page.server.ts`:
+```ts
+import { redirect } from '@sveltejs/kit'
+import type { PageServerLoad } from './$types'
+
+export const load: PageServerLoad = async ({ url, locals: { getSession } }) => {
+  const session = await getSession()
+
+  // if the user is already logged in return them to the account page
+  if (session) {
+    throw redirect(303, '/account')
+  }
+
+  return { url: url.origin }
+}
+```
+
+![](images/2023-06-29-22-19-20.png)
+
+### Proof Key for Code Exchange (PKCE)
+
+Create `src/routes/auth/callback/+server.ts`
+```ts
+import { redirect } from '@sveltejs/kit'
+
+export const GET = async ({ url, locals: { supabase } }) => {
+  const code = url.searchParams.get('code')
+
+  if (code) {
+    await supabase.auth.exchangeCodeForSession(code)
+  }
+
+  throw redirect(303, '/account')
+}
+```
+
+### Account Page
+
+Create `src/routes/account/+page.svelte`:
+```svelte
+<script lang="ts">
+	import { enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
+
+	export let data;
+	export let form;
+
+	let { session, supabase, profile } = data;
+	$: ({ session, supabase, profile } = data);
+
+	let profileForm: HTMLFormElement;
+	let loading = false;
+	let fullName: string = profile?.full_name ?? '';
+	let username: string = profile?.username ?? '';
+	let website: string = profile?.website ?? '';
+	let avatarUrl: string = profile?.avatar_url ?? '';
+
+	const handleSubmit: SubmitFunction = () => {
+		loading = true;
+		return async () => {
+			loading = false;
+		};
+	};
+
+	const handleSignOut: SubmitFunction = () => {
+		loading = true;
+		return async ({ update }) => {
+			loading = false;
+			update();
+		};
+	};
+</script>
+
+<div class="form-widget">
+	<form
+		class="form-widget"
+		method="post"
+		action="?/update"
+		use:enhance={handleSubmit}
+		bind:this={profileForm}
+	>
+		<div>
+			<label for="email">Email</label>
+			<input id="email" type="text" value={session.user.email} disabled />
+		</div>
+
+		<div>
+			<label for="fullName">Full Name</label>
+			<input id="fullName" name="fullName" type="text" value={form?.fullName ?? fullName} />
+		</div>
+
+		<div>
+			<label for="username">Username</label>
+			<input id="username" name="username" type="text" value={form?.username ?? username} />
+		</div>
+
+		<div>
+			<label for="website">Website</label>
+			<input id="website" name="website" type="url" value={form?.website ?? website} />
+		</div>
+
+		<div>
+			<input
+				type="submit"
+				class="button block primary"
+				value={loading ? 'Loading...' : 'Update'}
+				disabled={loading}
+			/>
+		</div>
+	</form>
+
+	<form method="post" action="?/signout" use:enhance={handleSignOut}>
+		<div>
+			<button class="button block" disabled={loading}>Sign Out</button>
+		</div>
+	</form>
+</div>
+```
+
+Create `src/routes/account/+page.server.ts`:
+```ts
+import { fail, redirect } from '@sveltejs/kit'
+
+export const load = async ({ locals: { supabase, getSession } }) => {
+  const session = await getSession()
+
+  if (!session) {
+    throw redirect(303, '/')
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select(`username, full_name, website, avatar_url`)
+    .eq('id', session.user.id)
+    .single()
+
+  return { session, profile }
+}
+
+export const actions = {
+  update: async ({ request, locals: { supabase, getSession } }) => {
+    const formData = await request.formData()
+    const fullName = formData.get('fullName') as string
+    const username = formData.get('username') as string
+    const website = formData.get('website') as string
+    const avatarUrl = formData.get('avatarUrl') as string
+
+    const session = await getSession()
+
+    const { error } = await supabase.from('profiles').upsert({
+      id: session?.user.id,
+      full_name: fullName,
+      username,
+      website,
+      avatar_url: avatarUrl,
+      updated_at: new Date(),
+    })
+
+    if (error) {
+      return fail(500, {
+        fullName,
+        username,
+        website,
+        avatarUrl,
+      })
+    }
+
+    return {
+      fullName,
+      username,
+      website,
+      avatarUrl,
+    }
+  },
+  signout: async ({ locals: { supabase, getSession } }) => {
+    const session = await getSession()
+    if (session) {
+      await supabase.auth.signOut()
+      throw redirect(303, '/')
+    }
+  },
+}
+```
+
+> 1. User clicks on the `Auth` component button
+> 2. Recieves Email with magic link
+> 3. Navigates to Supabase special link
+> 4. Gets redirected to the callback URL set-up in SvelteKit `/auth/callback`
+> 5. Hopefully gets logged in
+> 6. Redirected to account page `/account`
+
+![](images/2023-06-29-22-43-08.png)
