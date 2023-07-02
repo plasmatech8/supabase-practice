@@ -36,6 +36,7 @@ export const actions = {
 		});
 
 		if (error) {
+			console.error(error);
 			return fail(500, {
 				fullName,
 				username,
@@ -43,7 +44,7 @@ export const actions = {
 				avatarUrl
 			});
 		}
-
+		console.log('Successfully updated profile.');
 		return {
 			fullName,
 			username,

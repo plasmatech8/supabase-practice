@@ -8,6 +8,7 @@
     - [Setup Login Page](#setup-login-page)
     - [Proof Key for Code Exchange (PKCE)](#proof-key-for-code-exchange-pkce)
     - [Account Page](#account-page)
+    - [Profile Photos](#profile-photos)
 
 Worth looking at:
 * [Getting Started - Build a User Management App with SvelteKit](https://supabase.com/docs/guides/getting-started/tutorials/with-sveltekit)
@@ -22,6 +23,10 @@ Following:
 ### Project Setup
 
 Create a project on the [Supabase Dashboard](https://app.supabase.com/projects)
+
+Go to the SQL Editor, and click **User Management Starter**.
+
+Run.
 
 ### Build App
 
@@ -400,3 +405,5 @@ export const actions = {
 > 6. Redirected to account page `/account`
 
 ![](images/2023-06-29-22-43-08.png)
+
+### Profile Photos
